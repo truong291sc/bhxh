@@ -23,14 +23,12 @@ const securityForceSelect = document.getElementById('securityForce');
 document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', handleFormSubmit);
     incomeInput.addEventListener('input', formatCurrencyInput);
-    incomeInput.addEventListener('blur', adjustIncomeToStep);
+    incomeInput.addEventListener('blur', function() {
+        formatCurrencyInput.call(this);
+        adjustIncomeToStep();
+    });
     incomeInput.addEventListener('focus', function() {
-        // Format khi focus vào input
-        let value = this.value.replace(/[.,]/g, '');
-        if (value) {
-            value = parseInt(value);
-            this.value = value.toLocaleString('vi-VN');
-        }
+        formatCurrencyInput.call(this);
     });
     
     // Set placeholder with formatted example
@@ -66,7 +64,8 @@ function formatCurrencyInput() {
     
     if (value) {
         value = parseInt(value);
-        this.value = value.toLocaleString('vi-VN');
+        // Luôn dùng dấu phẩy ngăn cách hàng nghìn
+        this.value = value.toLocaleString('en-US').replace(/\./g, ',');
         
         // Trigger validation feedback
         if (value >= MIN_INCOME && value % INCOME_STEP === 0) {
