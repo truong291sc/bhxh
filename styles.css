@@ -260,12 +260,14 @@ body {
     opacity: 1;
     transform: translateY(0);
     transition: all 0.5s ease;
+    display: block;
 }
 
 .result-card.hidden {
     opacity: 0;
     transform: translateY(20px);
     pointer-events: none;
+    display: none;
 }
 
 .result-content {
