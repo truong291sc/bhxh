@@ -33,6 +33,26 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Set placeholder with formatted example
     incomeInput.placeholder = 'Tối thiểu 1.500.000đ';
+
+    const printBtn = document.getElementById('printPdfBtn');
+    if (printBtn) {
+        printBtn.addEventListener('click', function() {
+            const resultCard = document.getElementById('resultCard');
+            // Chỉ lấy phần nội dung kết quả, không lấy nút in
+            const resultContent = resultCard.querySelector('.result-content');
+            html2canvas(resultContent).then(function(canvas) {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new window.jspdf.jsPDF({ orientation: 'p', unit: 'pt', format: 'a4' });
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                // Tính toán kích thước ảnh để fit vào trang A4
+                const imgWidth = pageWidth - 40;
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
+                pdf.save('ket-qua-bhxh-tu-nguyen.pdf');
+            });
+        });
+    }
 });
 
 // Validate income input
