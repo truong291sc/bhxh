@@ -1,0 +1,304 @@
+// Constants
+const MIN_INCOME = 1500000; // Mức chuẩn hộ nghèo khu vực nông thôn
+const CONTRIBUTION_RATE = 0.22; // 22% mức thu nhập
+const INCOME_STEP = 50000; // Bước nhảy 50,000đ
+
+// Hỗ trợ nhà nước theo loại đối tượng
+const STATE_SUPPORT_RATES = {
+    'ngheo': 0.50,      // Hộ nghèo, xã đảo, đặc khu: 50%
+    'canNgheo': 0.40,   // Hộ cận nghèo: 40%
+    'danToc': 0.30,     // Dân tộc thiểu số: 30%
+    'khac': 0.20        // Đối tượng khác: 20%
+};
+
+// DOM Elements
+const form = document.getElementById('bhxhForm');
+const resultCard = document.getElementById('resultCard');
+const incomeInput = document.getElementById('income');
+const objectTypeSelect = document.getElementById('objectType');
+const paymentMethodSelect = document.getElementById('paymentMethod');
+const localSupportCheckbox = document.getElementById('localSupport');
+const securityForceCheckbox = document.getElementById('securityForce');
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+    form.addEventListener('submit', handleFormSubmit);
+    incomeInput.addEventListener('input', validateIncome);
+    incomeInput.addEventListener('blur', adjustIncomeToStep);
+});
+
+// Validate income input
+function validateIncome() {
+    const income = parseInt(incomeInput.value);
+    const formGroup = incomeInput.closest('.form-group');
+    
+    // Remove existing error
+    removeError(formGroup);
+    
+    if (income < MIN_INCOME) {
+        showError(formGroup, `Mức thu nhập phải tối thiểu ${formatCurrency(MIN_INCOME)}`);
+        return false;
+    }
+    
+    if (income % INCOME_STEP !== 0) {
+        showError(formGroup, `Mức thu nhập phải chia hết cho ${formatCurrency(INCOME_STEP)}`);
+        return false;
+    }
+    
+    return true;
+}
+
+// Adjust income to nearest valid step
+function adjustIncomeToStep() {
+    const income = parseInt(incomeInput.value);
+    if (income && income % INCOME_STEP !== 0) {
+        const adjustedIncome = Math.round(income / INCOME_STEP) * INCOME_STEP;
+        if (adjustedIncome >= MIN_INCOME) {
+            incomeInput.value = adjustedIncome;
+        }
+    }
+}
+
+// Show error message
+function showError(formGroup, message) {
+    formGroup.classList.add('error');
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i>${message}`;
+    formGroup.appendChild(errorDiv);
+}
+
+// Remove error message
+function removeError(formGroup) {
+    formGroup.classList.remove('error');
+    const errorDiv = formGroup.querySelector('.error-message');
+    if (errorDiv) {
+        errorDiv.remove();
+    }
+}
+
+// Handle form submission
+function handleFormSubmit(e) {
+    e.preventDefault();
+    
+    // Validate form
+    if (!validateForm()) {
+        return;
+    }
+    
+    // Get form data
+    const formData = getFormData();
+    
+    // Calculate BHXH
+    const result = calculateBHXH(formData);
+    
+    // Display result
+    displayResult(result);
+    
+    // Show result card
+    showResultCard();
+}
+
+// Validate form
+function validateForm() {
+    let isValid = true;
+    
+    // Validate income
+    if (!validateIncome()) {
+        isValid = false;
+    }
+    
+    // Validate required fields
+    const requiredFields = [objectTypeSelect, paymentMethodSelect];
+    requiredFields.forEach(field => {
+        if (!field.value) {
+            const formGroup = field.closest('.form-group');
+            showError(formGroup, 'Vui lòng chọn giá trị này');
+            isValid = false;
+        } else {
+            removeError(field.closest('.form-group'));
+        }
+    });
+    
+    return isValid;
+}
+
+// Get form data
+function getFormData() {
+    return {
+        income: parseInt(incomeInput.value),
+        objectType: objectTypeSelect.value,
+        paymentMethod: parseInt(paymentMethodSelect.value),
+        localSupport: localSupportCheckbox.checked,
+        securityForce: securityForceCheckbox.checked
+    };
+}
+
+// Calculate BHXH
+function calculateBHXH(data) {
+    const { income, objectType, paymentMethod, localSupport, securityForce } = data;
+    
+    // Mức đóng cá nhân (22% mức thu nhập)
+    const personalContribution = income * CONTRIBUTION_RATE;
+    
+    // Hỗ trợ nhà nước
+    const stateSupportRate = STATE_SUPPORT_RATES[objectType];
+    const stateSupport = personalContribution * stateSupportRate;
+    
+    // Số tiền thực đóng
+    const actualPayment = personalContribution - stateSupport;
+    
+    // Tính theo phương thức đóng
+    const paymentBreakdown = {
+        monthly1: actualPayment,
+        monthly3: actualPayment * 3,
+        monthly6: actualPayment * 6,
+        monthly12: actualPayment * 12
+    };
+    
+    // Thông tin bổ sung
+    const additionalInfo = generateAdditionalInfo(data, stateSupportRate);
+    
+    return {
+        income,
+        personalContribution,
+        stateSupport,
+        actualPayment,
+        paymentBreakdown,
+        additionalInfo,
+        stateSupportRate
+    };
+}
+
+// Generate additional information
+function generateAdditionalInfo(data, stateSupportRate) {
+    const info = [];
+    
+    info.push(`Mức thu nhập lựa chọn: ${formatCurrency(data.income)}`);
+    info.push(`Tỷ lệ đóng cá nhân: 22% mức thu nhập`);
+    info.push(`Tỷ lệ hỗ trợ nhà nước: ${(stateSupportRate * 100).toFixed(0)}%`);
+    
+    if (data.localSupport) {
+        info.push('Có hỗ trợ từ ngân sách địa phương (tùy thuộc vào chính sách từng tỉnh)');
+    }
+    
+    if (data.securityForce) {
+        info.push('Thuộc lực lượng an ninh cơ sở (có thể được hỗ trợ thêm từ địa phương)');
+    }
+    
+    info.push('Người tham gia thuộc nhiều đối tượng hỗ trợ sẽ được hỗ trợ theo mức cao nhất');
+    info.push('Có thể đóng theo các phương thức: 1, 3, 6 hoặc 12 tháng một lần');
+    
+    return info;
+}
+
+// Display result
+function displayResult(result) {
+    // Update summary values
+    document.getElementById('selectedIncome').textContent = formatCurrency(result.income);
+    document.getElementById('personalContribution').textContent = formatCurrency(result.personalContribution);
+    document.getElementById('stateSupport').textContent = formatCurrency(result.stateSupport);
+    document.getElementById('actualPayment').textContent = formatCurrency(result.actualPayment);
+    
+    // Update payment breakdown
+    document.getElementById('monthly1').textContent = formatCurrency(result.paymentBreakdown.monthly1);
+    document.getElementById('monthly3').textContent = formatCurrency(result.paymentBreakdown.monthly3);
+    document.getElementById('monthly6').textContent = formatCurrency(result.paymentBreakdown.monthly6);
+    document.getElementById('monthly12').textContent = formatCurrency(result.paymentBreakdown.monthly12);
+    
+    // Update additional info
+    const infoList = document.getElementById('infoList');
+    infoList.innerHTML = '';
+    result.additionalInfo.forEach(info => {
+        const li = document.createElement('li');
+        li.textContent = info;
+        infoList.appendChild(li);
+    });
+}
+
+// Show result card
+function showResultCard() {
+    resultCard.classList.remove('hidden');
+    resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// Reset form
+function resetForm() {
+    form.reset();
+    resultCard.classList.add('hidden');
+    
+    // Remove all errors
+    document.querySelectorAll('.form-group').forEach(group => {
+        removeError(group);
+    });
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Format currency
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(amount);
+}
+
+// Add some interactive features
+document.addEventListener('DOMContentLoaded', function() {
+    // Add input validation feedback
+    incomeInput.addEventListener('input', function() {
+        const value = parseInt(this.value);
+        if (value >= MIN_INCOME && value % INCOME_STEP === 0) {
+            this.style.borderColor = '#4CAF50';
+        } else {
+            this.style.borderColor = '#e1e5e9';
+        }
+    });
+    
+    // Add tooltips for better UX
+    addTooltips();
+});
+
+// Add tooltips
+function addTooltips() {
+    const tooltipElements = document.querySelectorAll('[data-tooltip]');
+    tooltipElements.forEach(element => {
+        element.addEventListener('mouseenter', showTooltip);
+        element.addEventListener('mouseleave', hideTooltip);
+    });
+}
+
+function showTooltip(e) {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip';
+    tooltip.textContent = e.target.dataset.tooltip;
+    tooltip.style.cssText = `
+        position: absolute;
+        background: #333;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        z-index: 1000;
+        pointer-events: none;
+        white-space: nowrap;
+    `;
+    
+    document.body.appendChild(tooltip);
+    
+    const rect = e.target.getBoundingClientRect();
+    tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
+    tooltip.style.top = rect.top - tooltip.offsetHeight - 8 + 'px';
+    
+    e.target.tooltip = tooltip;
+}
+
+function hideTooltip(e) {
+    if (e.target.tooltip) {
+        e.target.tooltip.remove();
+        e.target.tooltip = null;
+    }
+} 

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tính Mức Đóng BHXH Tự Nguyện</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <h1>BHXH Tự Nguyện</h1>
+                </div>
+                <p class="subtitle">Tính toán mức đóng bảo hiểm xã hội tự nguyện</p>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="calculator-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-calculator"></i> Tính Mức Đóng</h2>
+                    <p>Nhập thông tin để tính mức đóng BHXH tự nguyện</p>
+                </div>
+
+                <form id="bhxhForm" class="form">
+                    <div class="form-group">
+                        <label for="income">Mức thu nhập lựa chọn (VNĐ):</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="income" name="income" 
+                                   placeholder="Nhập mức thu nhập (chia hết cho 50,000đ)" 
+                                   min="1500000" step="50000" required>
+                            <div class="input-info">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Tối thiểu: 1,500,000đ và chia hết cho 50,000đ</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="objectType">Loại đối tượng:</label>
+                        <select id="objectType" name="objectType" required>
+                            <option value="">Chọn loại đối tượng</option>
+                            <option value="ngheo">Hộ nghèo, xã đảo, đặc khu (50%)</option>
+                            <option value="canNgheo">Hộ cận nghèo (40%)</option>
+                            <option value="danToc">Dân tộc thiểu số (30%)</option>
+                            <option value="khac">Đối tượng khác (20%)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="paymentMethod">Phương thức đóng:</label>
+                        <select id="paymentMethod" name="paymentMethod" required>
+                            <option value="">Chọn phương thức đóng</option>
+                            <option value="1">1 tháng</option>
+                            <option value="3">3 tháng</option>
+                            <option value="6">6 tháng</option>
+                            <option value="12">12 tháng</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="localSupport">Hỗ trợ địa phương:</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="localSupport" name="localSupport">
+                                <span class="checkmark"></span>
+                                Có hỗ trợ từ ngân sách địa phương
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="securityForce">Lực lượng an ninh cơ sở:</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="securityForce" name="securityForce">
+                                <span class="checkmark"></span>
+                                Thuộc lực lượng an ninh cơ sở
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="calculate-btn">
+                        <i class="fas fa-calculator"></i>
+                        Tính Toán
+                    </button>
+                </form>
+            </div>
+
+            <div id="resultCard" class="result-card hidden">
+                <div class="card-header">
+                    <h2><i class="fas fa-chart-pie"></i> Kết Quả Tính Toán</h2>
+                </div>
+                
+                <div class="result-content">
+                    <div class="result-summary">
+                        <div class="summary-item">
+                            <div class="summary-label">Mức thu nhập lựa chọn:</div>
+                            <div class="summary-value" id="selectedIncome">0 VNĐ</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Mức đóng cá nhân (22%):</div>
+                            <div class="summary-value" id="personalContribution">0 VNĐ</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Hỗ trợ nhà nước:</div>
+                            <div class="summary-value" id="stateSupport">0 VNĐ</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Số tiền thực đóng:</div>
+                            <div class="summary-value highlight" id="actualPayment">0 VNĐ</div>
+                        </div>
+                    </div>
+
+                    <div class="payment-breakdown">
+                        <h3>Chi tiết theo phương thức đóng:</h3>
+                        <div class="breakdown-grid">
+                            <div class="breakdown-item">
+                                <div class="breakdown-label">1 tháng</div>
+                                <div class="breakdown-value" id="monthly1">0 VNĐ</div>
+                            </div>
+                            <div class="breakdown-item">
+                                <div class="breakdown-label">3 tháng</div>
+                                <div class="breakdown-value" id="monthly3">0 VNĐ</div>
+                            </div>
+                            <div class="breakdown-item">
+                                <div class="breakdown-label">6 tháng</div>
+                                <div class="breakdown-value" id="monthly6">0 VNĐ</div>
+                            </div>
+                            <div class="breakdown-item">
+                                <div class="breakdown-label">12 tháng</div>
+                                <div class="breakdown-value" id="monthly12">0 VNĐ</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <h3><i class="fas fa-info-circle"></i> Thông tin bổ sung</h3>
+                        <ul id="infoList">
+                            <!-- Thông tin sẽ được thêm động -->
+                        </ul>
+                    </div>
+                </div>
+
+                <button type="button" class="reset-btn" onclick="resetForm()">
+                    <i class="fas fa-redo"></i>
+                    Tính Lại
+                </button>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2024 BHXH Tự Nguyện Calculator. Phát triển để hỗ trợ tính toán mức đóng BHXH tự nguyện.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
