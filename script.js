@@ -49,10 +49,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const imgWidth = pageWidth - 40;
                 const imgHeight = canvas.height * imgWidth / canvas.width;
                 pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
-                // Tạo blob và mở tab mới
-                pdf.output('bloburl').then(function(url) {
-                    window.open(url, '_blank');
-                });
+                // Tạo blob và mở tab mới (cách tương thích mọi trình duyệt)
+                const blob = pdf.output('blob');
+                const url = URL.createObjectURL(blob);
+                window.open(url, '_blank');
             });
         });
     }
