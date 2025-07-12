@@ -49,7 +49,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const imgWidth = pageWidth - 40;
                 const imgHeight = canvas.height * imgWidth / canvas.width;
                 pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
-                pdf.save('ket-qua-bhxh-tu-nguyen.pdf');
+                // Tạo blob và mở tab mới
+                pdf.output('bloburl').then(function(url) {
+                    window.open(url, '_blank');
+                });
             });
         });
     }
