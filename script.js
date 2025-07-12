@@ -16,7 +16,6 @@ const form = document.getElementById('bhxhForm');
 const resultCard = document.getElementById('resultCard');
 const incomeInput = document.getElementById('income');
 const objectTypeSelect = document.getElementById('objectType');
-const paymentMethodSelect = document.getElementById('paymentMethod');
 const localSupportCheckbox = document.getElementById('localSupport');
 const securityForceCheckbox = document.getElementById('securityForce');
 
@@ -109,7 +108,7 @@ function validateForm() {
     }
     
     // Validate required fields
-    const requiredFields = [objectTypeSelect, paymentMethodSelect];
+    const requiredFields = [objectTypeSelect];
     requiredFields.forEach(field => {
         if (!field.value) {
             const formGroup = field.closest('.form-group');
@@ -128,7 +127,6 @@ function getFormData() {
     return {
         income: parseInt(incomeInput.value),
         objectType: objectTypeSelect.value,
-        paymentMethod: parseInt(paymentMethodSelect.value),
         localSupport: localSupportCheckbox.checked,
         securityForce: securityForceCheckbox.checked
     };
@@ -136,7 +134,7 @@ function getFormData() {
 
 // Calculate BHXH
 function calculateBHXH(data) {
-    const { income, objectType, paymentMethod, localSupport, securityForce } = data;
+    const { income, objectType, localSupport, securityForce } = data;
     
     // Mức đóng cá nhân (22% mức thu nhập)
     const personalContribution = income * CONTRIBUTION_RATE;
