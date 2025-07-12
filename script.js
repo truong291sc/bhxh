@@ -25,6 +25,14 @@ document.addEventListener('DOMContentLoaded', function() {
     incomeInput.addEventListener('input', validateIncome);
     incomeInput.addEventListener('blur', adjustIncomeToStep);
     incomeInput.addEventListener('input', formatCurrencyInput);
+    incomeInput.addEventListener('focus', function() {
+        // Format khi focus vào input
+        let value = this.value.replace(/[.,]/g, '');
+        if (value) {
+            value = parseInt(value);
+            this.value = value.toLocaleString('vi-VN');
+        }
+    });
 });
 
 // Validate income input
@@ -57,6 +65,8 @@ function formatCurrencyInput() {
     if (value) {
         value = parseInt(value);
         this.value = value.toLocaleString('vi-VN');
+    } else {
+        this.value = '';
     }
 }
 
@@ -292,7 +302,8 @@ function formatCurrency(amount) {
 document.addEventListener('DOMContentLoaded', function() {
     // Add input validation feedback
     incomeInput.addEventListener('input', function() {
-        const value = parseInt(this.value);
+        let value = this.value.replace(/[.,]/g, '');
+        value = parseInt(value);
         if (value >= MIN_INCOME && value % INCOME_STEP === 0) {
             this.style.borderColor = '#2aa3dc';
         } else {
