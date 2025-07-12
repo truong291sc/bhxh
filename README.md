@@ -68,7 +68,7 @@ Mức đóng cá nhân = Mức thu nhập lựa chọn × 22%
 
 ### Hỗ trợ nhà nước
 ```
-Hỗ trợ nhà nước = Mức đóng cá nhân × Tỷ lệ hỗ trợ
+Hỗ trợ nhà nước = Mức chuẩn hộ nghèo × 22% × Tỷ lệ hỗ trợ
 ```
 
 ### Số tiền thực đóng

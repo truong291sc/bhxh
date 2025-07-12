@@ -141,9 +141,9 @@ function calculateBHXH(data) {
     // Mức đóng cá nhân (22% mức thu nhập)
     const personalContribution = income * CONTRIBUTION_RATE;
     
-    // Hỗ trợ nhà nước
+    // Hỗ trợ nhà nước (dựa trên mức chuẩn hộ nghèo 1,500,000 VNĐ)
     const stateSupportRate = STATE_SUPPORT_RATES[objectType];
-    const stateSupport = personalContribution * stateSupportRate;
+    const stateSupport = MIN_INCOME * CONTRIBUTION_RATE * stateSupportRate;
     
     // Số tiền thực đóng
     const actualPayment = personalContribution - stateSupport;
@@ -176,7 +176,8 @@ function generateAdditionalInfo(data, stateSupportRate) {
     
     info.push(`Mức thu nhập lựa chọn: ${formatCurrency(data.income)}`);
     info.push(`Tỷ lệ đóng cá nhân: 22% mức thu nhập`);
-    info.push(`Tỷ lệ hỗ trợ nhà nước: ${(stateSupportRate * 100).toFixed(0)}%`);
+    info.push(`Tỷ lệ hỗ trợ nhà nước: ${(stateSupportRate * 100).toFixed(0)}% của mức chuẩn hộ nghèo (${formatCurrency(MIN_INCOME)})`);
+    info.push(`Mức hỗ trợ nhà nước: ${formatCurrency(MIN_INCOME * CONTRIBUTION_RATE * stateSupportRate)}`);
     
     if (data.localSupport) {
         info.push('Có hỗ trợ từ ngân sách địa phương (tùy thuộc vào chính sách từng tỉnh)');
