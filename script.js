@@ -22,9 +22,8 @@ const securityForceSelect = document.getElementById('securityForce');
 // Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', handleFormSubmit);
-    incomeInput.addEventListener('input', validateIncome);
-    incomeInput.addEventListener('blur', adjustIncomeToStep);
     incomeInput.addEventListener('input', formatCurrencyInput);
+    incomeInput.addEventListener('blur', adjustIncomeToStep);
     incomeInput.addEventListener('focus', function() {
         // Format khi focus vào input
         let value = this.value.replace(/[.,]/g, '');
@@ -33,6 +32,9 @@ document.addEventListener('DOMContentLoaded', function() {
             this.value = value.toLocaleString('vi-VN');
         }
     });
+    
+    // Set placeholder with formatted example
+    incomeInput.placeholder = 'VD: 1,500,000';
 });
 
 // Validate income input
@@ -67,6 +69,14 @@ function formatCurrencyInput() {
         this.value = value.toLocaleString('vi-VN');
     } else {
         this.value = '';
+    }
+    
+    // Trigger validation feedback
+    let numValue = parseInt(value);
+    if (numValue >= MIN_INCOME && numValue % INCOME_STEP === 0) {
+        this.style.borderColor = '#2aa3dc';
+    } else {
+        this.style.borderColor = '#e1e5e9';
     }
 }
 
@@ -275,14 +285,8 @@ function resetForm() {
     // Reset input border color
     incomeInput.style.borderColor = '#e1e5e9';
     
-    // Force re-render of select elements
-    localSupportSelect.style.display = 'none';
-    localSupportSelect.offsetHeight; // Trigger reflow
-    localSupportSelect.style.display = '';
-    
-    securityForceSelect.style.display = 'none';
-    securityForceSelect.offsetHeight; // Trigger reflow
-    securityForceSelect.style.display = '';
+    // Clear input value
+    incomeInput.value = '';
     
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
