@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Set placeholder with formatted example
-    incomeInput.placeholder = 'VD: 1,500,000';
+    incomeInput.placeholder = 'Tối thiểu 1.500.000đ';
 });
 
 // Validate income input
@@ -57,15 +57,15 @@ function validateIncome() {
     return true;
 }
 
-// Format currency input with commas
+// Format currency input with dots
 function formatCurrencyInput() {
     let value = this.value.replace(/[.,]/g, '');
     value = value.replace(/\D/g, '');
     
     if (value) {
         value = parseInt(value);
-        // Luôn dùng dấu phẩy ngăn cách hàng nghìn
-        this.value = value.toLocaleString('en-US').replace(/\./g, ',');
+        // Luôn dùng dấu chấm ngăn cách hàng nghìn
+        this.value = value.toLocaleString('en-US');
         
         // Trigger validation feedback
         if (value >= MIN_INCOME && value % INCOME_STEP === 0) {
