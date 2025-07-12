@@ -65,7 +65,7 @@ function formatCurrencyInput() {
     if (value) {
         value = parseInt(value);
         // Luôn dùng dấu chấm ngăn cách hàng nghìn
-        this.value = value.toLocaleString('en-US');
+        this.value = value.toLocaleString('en-US').replace(/,/g, '.');
         
         // Trigger validation feedback
         if (value >= MIN_INCOME && value % INCOME_STEP === 0) {
