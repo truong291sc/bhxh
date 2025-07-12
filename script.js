@@ -24,11 +24,13 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', handleFormSubmit);
     incomeInput.addEventListener('input', validateIncome);
     incomeInput.addEventListener('blur', adjustIncomeToStep);
+    incomeInput.addEventListener('input', formatCurrencyInput);
 });
 
 // Validate income input
 function validateIncome() {
-    const income = parseInt(incomeInput.value);
+    let value = incomeInput.value.replace(/,/g, '');
+    const income = parseInt(value);
     const formGroup = incomeInput.closest('.form-group');
     
     // Remove existing error
@@ -47,13 +49,25 @@ function validateIncome() {
     return true;
 }
 
+// Format currency input with commas
+function formatCurrencyInput() {
+    let value = this.value.replace(/,/g, '');
+    value = value.replace(/\D/g, '');
+    
+    if (value) {
+        value = parseInt(value);
+        this.value = value.toLocaleString('vi-VN');
+    }
+}
+
 // Adjust income to nearest valid step
 function adjustIncomeToStep() {
-    const income = parseInt(incomeInput.value);
+    let value = incomeInput.value.replace(/,/g, '');
+    const income = parseInt(value);
     if (income && income % INCOME_STEP !== 0) {
         const adjustedIncome = Math.round(income / INCOME_STEP) * INCOME_STEP;
         if (adjustedIncome >= MIN_INCOME) {
-            incomeInput.value = adjustedIncome;
+            incomeInput.value = adjustedIncome.toLocaleString('vi-VN');
         }
     }
 }
@@ -124,8 +138,9 @@ function validateForm() {
 
 // Get form data
 function getFormData() {
+    let value = incomeInput.value.replace(/,/g, '');
     return {
-        income: parseInt(incomeInput.value),
+        income: parseInt(value),
         objectType: objectTypeSelect.value,
         localSupport: parseInt(localSupportSelect.value),
         securityForce: parseInt(securityForceSelect.value)
@@ -246,6 +261,18 @@ function resetForm() {
     document.querySelectorAll('.form-group').forEach(group => {
         removeError(group);
     });
+    
+    // Reset input border color
+    incomeInput.style.borderColor = '#e1e5e9';
+    
+    // Force re-render of select elements
+    localSupportSelect.style.display = 'none';
+    localSupportSelect.offsetHeight; // Trigger reflow
+    localSupportSelect.style.display = '';
+    
+    securityForceSelect.style.display = 'none';
+    securityForceSelect.offsetHeight; // Trigger reflow
+    securityForceSelect.style.display = '';
     
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });

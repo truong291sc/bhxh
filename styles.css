@@ -79,11 +79,7 @@ body {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.calculator-card:hover,
-.result-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-}
+
 
 .card-header {
     background: linear-gradient(135deg, #0772b8, #1187c7);
