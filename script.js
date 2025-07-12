@@ -67,15 +67,15 @@ function formatCurrencyInput() {
     if (value) {
         value = parseInt(value);
         this.value = value.toLocaleString('vi-VN');
+        
+        // Trigger validation feedback
+        if (value >= MIN_INCOME && value % INCOME_STEP === 0) {
+            this.style.borderColor = '#2aa3dc';
+        } else {
+            this.style.borderColor = '#e1e5e9';
+        }
     } else {
         this.value = '';
-    }
-    
-    // Trigger validation feedback
-    let numValue = parseInt(value);
-    if (numValue >= MIN_INCOME && numValue % INCOME_STEP === 0) {
-        this.style.borderColor = '#2aa3dc';
-    } else {
         this.style.borderColor = '#e1e5e9';
     }
 }
@@ -245,8 +245,8 @@ function displayResult(result) {
     document.getElementById('selectedIncome').textContent = formatCurrency(result.income);
     document.getElementById('personalContribution').textContent = formatCurrency(result.personalContribution);
     document.getElementById('stateSupport').textContent = formatCurrency(result.stateSupport);
-    document.getElementById('localSupport').textContent = formatCurrency(result.localSupportAmount);
-    document.getElementById('securitySupport').textContent = formatCurrency(result.securitySupportAmount);
+    document.getElementById('localSupportResult').textContent = formatCurrency(result.localSupportAmount);
+    document.getElementById('securitySupportResult').textContent = formatCurrency(result.securitySupportAmount);
     document.getElementById('totalSupport').textContent = formatCurrency(result.totalSupport);
     document.getElementById('actualPayment').textContent = formatCurrency(result.actualPayment);
     
