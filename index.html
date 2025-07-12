@@ -20,55 +20,59 @@
                 </div>
 
                 <form id="bhxhForm" class="form">
-                    <div class="form-group">
-                        <label for="income">Mức thu nhập lựa chọn (VNĐ):</label>
-                        <div class="input-wrapper">
-                            <input type="number" id="income" name="income" 
-                                   placeholder="Nhập mức thu nhập (chia hết cho 50,000đ)" 
-                                   min="1500000" step="50000" required>
-                            <div class="input-info">
-                                <i class="fas fa-info-circle"></i>
-                                <span>Tối thiểu: 1,500,000đ và chia hết cho 50,000đ</span>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="income">Mức thu nhập lựa chọn (VNĐ):</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="income" name="income" 
+                                       placeholder="Nhập mức thu nhập (chia hết cho 50,000đ)" 
+                                       required>
+                                <div class="input-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>Tối thiểu: 1,500,000đ và chia hết cho 50,000đ</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="objectType">Loại đối tượng:</label>
-                        <select id="objectType" name="objectType" required>
-                            <option value="">Chọn loại đối tượng</option>
-                            <option value="ngheo">Hộ nghèo, xã đảo, đặc khu (50%)</option>
-                            <option value="canNgheo">Hộ cận nghèo (40%)</option>
-                            <option value="danToc">Dân tộc thiểu số (30%)</option>
-                            <option value="khac">Đối tượng khác (20%)</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="localSupport">Hỗ trợ từ ngân sách địa phương:</label>
-                        <select id="localSupport" name="localSupport">
-                            <option value="0">Không có hỗ trợ</option>
-                            <option value="10">10%</option>
-                            <option value="15">15%</option>
-                            <option value="20">20%</option>
-                        </select>
-                        <div class="input-info">
-                            <i class="fas fa-info-circle"></i>
-                            <span>Tùy thuộc vào chính sách từng tỉnh/thành phố</span>
+                        <div class="form-group">
+                            <label for="objectType">Loại đối tượng:</label>
+                            <select id="objectType" name="objectType" required>
+                                <option value="">Chọn loại đối tượng</option>
+                                <option value="ngheo">Hộ nghèo, xã đảo, đặc khu (50%)</option>
+                                <option value="canNgheo">Hộ cận nghèo (40%)</option>
+                                <option value="danToc">Dân tộc thiểu số (30%)</option>
+                                <option value="khac">Đối tượng khác (20%)</option>
+                            </select>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="securityForce">Lực lượng an ninh cơ sở:</label>
-                        <select id="securityForce" name="securityForce">
-                            <option value="0">Không thuộc lực lượng</option>
-                            <option value="10">10%</option>
-                            <option value="15">15%</option>
-                            <option value="20">20%</option>
-                        </select>
-                        <div class="input-info">
-                            <i class="fas fa-info-circle"></i>
-                            <span>Tùy thuộc vào chính sách từng tỉnh/thành phố</span>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="localSupport">Hỗ trợ từ ngân sách địa phương:</label>
+                            <select id="localSupport" name="localSupport">
+                                <option value="0">Không có hỗ trợ</option>
+                                <option value="10">10%</option>
+                                <option value="15">15%</option>
+                                <option value="20">20%</option>
+                            </select>
+                            <div class="input-info">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Tùy thuộc vào chính sách từng tỉnh/thành phố</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="securityForce">Lực lượng an ninh cơ sở:</label>
+                            <select id="securityForce" name="securityForce">
+                                <option value="0">Không thuộc lực lượng</option>
+                                <option value="10">10%</option>
+                                <option value="15">15%</option>
+                                <option value="20">20%</option>
+                            </select>
+                            <div class="input-info">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Tùy thuộc vào chính sách từng tỉnh/thành phố</span>
+                            </div>
                         </div>
                     </div>
 

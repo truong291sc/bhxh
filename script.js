@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Validate income input
 function validateIncome() {
-    let value = incomeInput.value.replace(/,/g, '');
+    let value = incomeInput.value.replace(/[.,]/g, '');
     const income = parseInt(value);
     const formGroup = incomeInput.closest('.form-group');
     
@@ -51,7 +51,7 @@ function validateIncome() {
 
 // Format currency input with commas
 function formatCurrencyInput() {
-    let value = this.value.replace(/,/g, '');
+    let value = this.value.replace(/[.,]/g, '');
     value = value.replace(/\D/g, '');
     
     if (value) {
@@ -62,7 +62,7 @@ function formatCurrencyInput() {
 
 // Adjust income to nearest valid step
 function adjustIncomeToStep() {
-    let value = incomeInput.value.replace(/,/g, '');
+    let value = incomeInput.value.replace(/[.,]/g, '');
     const income = parseInt(value);
     if (income && income % INCOME_STEP !== 0) {
         const adjustedIncome = Math.round(income / INCOME_STEP) * INCOME_STEP;
@@ -138,7 +138,7 @@ function validateForm() {
 
 // Get form data
 function getFormData() {
-    let value = incomeInput.value.replace(/,/g, '');
+    let value = incomeInput.value.replace(/[.,]/g, '');
     return {
         income: parseInt(value),
         objectType: objectTypeSelect.value,
