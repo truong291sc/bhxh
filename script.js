@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
     incomeInput.addEventListener('input', function() {
         const value = parseInt(this.value);
         if (value >= MIN_INCOME && value % INCOME_STEP === 0) {
-            this.style.borderColor = '#4CAF50';
+            this.style.borderColor = '#2aa3dc';
         } else {
             this.style.borderColor = '#e1e5e9';
         }

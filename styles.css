@@ -7,7 +7,7 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0772b8 0%, #1187c7 100%);
     min-height: 100vh;
     color: #333;
     line-height: 1.6;
@@ -44,7 +44,7 @@ body {
 
 .logo i {
     font-size: 2.5rem;
-    color: #4CAF50;
+    color: #4bbfee;
 }
 
 .logo h1 {
@@ -85,7 +85,7 @@ body {
 }
 
 .card-header {
-    background: linear-gradient(135deg, #4CAF50, #45a049);
+    background: linear-gradient(135deg, #0772b8, #1187c7);
     color: white;
     padding: 30px;
     text-align: center;
@@ -140,8 +140,8 @@ body {
 .form-group input[type="number"]:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #4CAF50;
-    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+    border-color: #2aa3dc;
+    box-shadow: 0 0 0 3px rgba(42, 163, 220, 0.1);
 }
 
 .input-info {
@@ -154,7 +154,7 @@ body {
 }
 
 .input-info i {
-    color: #4CAF50;
+    color: #2aa3dc;
 }
 
 /* Checkbox styles */
@@ -190,8 +190,8 @@ body {
 }
 
 .checkbox-label input[type="checkbox"]:checked + .checkmark {
-    background-color: #4CAF50;
-    border-color: #4CAF50;
+    background-color: #2aa3dc;
+    border-color: #2aa3dc;
 }
 
 .checkbox-label input[type="checkbox"]:checked + .checkmark::after {
@@ -224,25 +224,25 @@ body {
 }
 
 .calculate-btn {
-    background: linear-gradient(135deg, #4CAF50, #45a049);
+    background: linear-gradient(135deg, #0772b8, #1187c7);
     color: white;
 }
 
 .calculate-btn:hover {
-    background: linear-gradient(135deg, #45a049, #3d8b40);
+    background: linear-gradient(135deg, #127dc1, #0772b8);
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+    box-shadow: 0 10px 20px rgba(7, 114, 184, 0.3);
 }
 
 .reset-btn {
-    background: linear-gradient(135deg, #f44336, #d32f2f);
+    background: linear-gradient(135deg, #127dc1, #0772b8);
     color: white;
 }
 
 .reset-btn:hover {
-    background: linear-gradient(135deg, #d32f2f, #b71c1c);
+    background: linear-gradient(135deg, #0772b8, #127dc1);
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(244, 67, 54, 0.3);
+    box-shadow: 0 10px 20px rgba(18, 125, 193, 0.3);
 }
 
 /* Result Card */
@@ -290,7 +290,7 @@ body {
 }
 
 .summary-value.highlight {
-    color: #4CAF50;
+    color: #0772b8;
     font-size: 1.3rem;
     font-weight: 700;
 }
@@ -329,16 +329,16 @@ body {
 
 .breakdown-value {
     font-weight: 600;
-    color: #4CAF50;
+    color: #0772b8;
     font-size: 1rem;
 }
 
 /* Info Section */
 .info-section {
-    background: #f8f9fa;
+    background: #e4f5fc;
     padding: 20px;
     border-radius: 10px;
-    border-left: 4px solid #4CAF50;
+    border-left: 4px solid #0772b8;
 }
 
 .info-section h3 {
@@ -366,7 +366,7 @@ body {
 
 .info-section li::before {
     content: '•';
-    color: #4CAF50;
+    color: #0772b8;
     font-weight: bold;
     margin-right: 10px;
 }
@@ -462,12 +462,12 @@ body {
 /* Error states */
 .form-group.error input,
 .form-group.error select {
-    border-color: #f44336;
-    box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
+    border-color: #127dc1;
+    box-shadow: 0 0 0 3px rgba(18, 125, 193, 0.1);
 }
 
 .error-message {
-    color: #f44336;
+    color: #127dc1;
     font-size: 0.9rem;
     margin-top: 5px;
     display: flex;
