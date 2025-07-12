@@ -16,8 +16,8 @@ const form = document.getElementById('bhxhForm');
 const resultCard = document.getElementById('resultCard');
 const incomeInput = document.getElementById('income');
 const objectTypeSelect = document.getElementById('objectType');
-const localSupportCheckbox = document.getElementById('localSupport');
-const securityForceCheckbox = document.getElementById('securityForce');
+const localSupportSelect = document.getElementById('localSupport');
+const securityForceSelect = document.getElementById('securityForce');
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
@@ -127,8 +127,8 @@ function getFormData() {
     return {
         income: parseInt(incomeInput.value),
         objectType: objectTypeSelect.value,
-        localSupport: localSupportCheckbox.checked,
-        securityForce: securityForceCheckbox.checked
+        localSupport: parseInt(localSupportSelect.value),
+        securityForce: parseInt(securityForceSelect.value)
     };
 }
 
@@ -143,8 +143,17 @@ function calculateBHXH(data) {
     const stateSupportRate = STATE_SUPPORT_RATES[objectType];
     const stateSupport = MIN_INCOME * CONTRIBUTION_RATE * stateSupportRate;
     
+    // Hỗ trợ địa phương (dựa trên mức chuẩn hộ nghèo)
+    const localSupportAmount = MIN_INCOME * CONTRIBUTION_RATE * (localSupport / 100);
+    
+    // Hỗ trợ an ninh cơ sở (dựa trên mức chuẩn hộ nghèo)
+    const securitySupportAmount = MIN_INCOME * CONTRIBUTION_RATE * (securityForce / 100);
+    
+    // Tổng hỗ trợ
+    const totalSupport = stateSupport + localSupportAmount + securitySupportAmount;
+    
     // Số tiền thực đóng
-    const actualPayment = personalContribution - stateSupport;
+    const actualPayment = personalContribution - totalSupport;
     
     // Tính theo phương thức đóng
     const paymentBreakdown = {
@@ -161,6 +170,9 @@ function calculateBHXH(data) {
         income,
         personalContribution,
         stateSupport,
+        localSupportAmount,
+        securitySupportAmount,
+        totalSupport,
         actualPayment,
         paymentBreakdown,
         additionalInfo,
@@ -177,14 +189,15 @@ function generateAdditionalInfo(data, stateSupportRate) {
     info.push(`Tỷ lệ hỗ trợ nhà nước: ${(stateSupportRate * 100).toFixed(0)}% của mức chuẩn hộ nghèo (${formatCurrency(MIN_INCOME)})`);
     info.push(`Mức hỗ trợ nhà nước: ${formatCurrency(MIN_INCOME * CONTRIBUTION_RATE * stateSupportRate)}`);
     
-    if (data.localSupport) {
-        info.push('Có hỗ trợ từ ngân sách địa phương (tùy thuộc vào chính sách từng tỉnh)');
+    if (data.localSupport > 0) {
+        info.push(`Hỗ trợ địa phương: ${data.localSupport}% (${formatCurrency(MIN_INCOME * CONTRIBUTION_RATE * (data.localSupport / 100))})`);
     }
     
-    if (data.securityForce) {
-        info.push('Thuộc lực lượng an ninh cơ sở (có thể được hỗ trợ thêm từ địa phương)');
+    if (data.securityForce > 0) {
+        info.push(`Hỗ trợ an ninh cơ sở: ${data.securityForce}% (${formatCurrency(MIN_INCOME * CONTRIBUTION_RATE * (data.securityForce / 100))})`);
     }
     
+    info.push(`Tổng hỗ trợ: ${formatCurrency(MIN_INCOME * CONTRIBUTION_RATE * (stateSupportRate + data.localSupport/100 + data.securityForce/100))}`);
     info.push('Người tham gia thuộc nhiều đối tượng hỗ trợ sẽ được hỗ trợ theo mức cao nhất');
     info.push('Có thể đóng theo các phương thức: 1, 3, 6 hoặc 12 tháng một lần');
     
@@ -197,6 +210,9 @@ function displayResult(result) {
     document.getElementById('selectedIncome').textContent = formatCurrency(result.income);
     document.getElementById('personalContribution').textContent = formatCurrency(result.personalContribution);
     document.getElementById('stateSupport').textContent = formatCurrency(result.stateSupport);
+    document.getElementById('localSupport').textContent = formatCurrency(result.localSupportAmount);
+    document.getElementById('securitySupport').textContent = formatCurrency(result.securitySupportAmount);
+    document.getElementById('totalSupport').textContent = formatCurrency(result.totalSupport);
     document.getElementById('actualPayment').textContent = formatCurrency(result.actualPayment);
     
     // Update payment breakdown

@@ -53,24 +53,30 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="localSupport">Hỗ trợ địa phương:</label>
-                        <div class="checkbox-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="localSupport" name="localSupport">
-                                <span class="checkmark"></span>
-                                Có hỗ trợ từ ngân sách địa phương
-                            </label>
+                        <label for="localSupport">Hỗ trợ từ ngân sách địa phương:</label>
+                        <select id="localSupport" name="localSupport">
+                            <option value="0">Không có hỗ trợ</option>
+                            <option value="10">10%</option>
+                            <option value="15">15%</option>
+                            <option value="20">20%</option>
+                        </select>
+                        <div class="input-info">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Tùy thuộc vào chính sách từng tỉnh/thành phố</span>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="securityForce">Lực lượng an ninh cơ sở:</label>
-                        <div class="checkbox-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="securityForce" name="securityForce">
-                                <span class="checkmark"></span>
-                                Thuộc lực lượng an ninh cơ sở
-                            </label>
+                        <select id="securityForce" name="securityForce">
+                            <option value="0">Không thuộc lực lượng</option>
+                            <option value="10">10%</option>
+                            <option value="15">15%</option>
+                            <option value="20">20%</option>
+                        </select>
+                        <div class="input-info">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Tùy thuộc vào chính sách từng tỉnh/thành phố</span>
                         </div>
                     </div>
 
@@ -99,6 +105,18 @@
                         <div class="summary-item">
                             <div class="summary-label">Hỗ trợ nhà nước:</div>
                             <div class="summary-value" id="stateSupport">0 VNĐ</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Hỗ trợ địa phương:</div>
+                            <div class="summary-value" id="localSupport">0 VNĐ</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Hỗ trợ an ninh cơ sở:</div>
+                            <div class="summary-value" id="securitySupport">0 VNĐ</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Tổng hỗ trợ:</div>
+                            <div class="summary-value" id="totalSupport">0 VNĐ</div>
                         </div>
                         <div class="summary-item">
                             <div class="summary-label">Số tiền thực đóng:</div>
