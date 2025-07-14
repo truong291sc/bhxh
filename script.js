@@ -261,6 +261,15 @@ function generateAdditionalInfo(data, stateSupportRate) {
     return info;
 }
 
+// Hàm tính mức đóng một lần cho n năm về sau
+function tinhMucDongMotLan(TNi, r, n) {
+    let tong = 0;
+    for (let i = 1; i <= n * 12; i++) {
+        tong += (TNi * 0.22) / Math.pow(1 + r, i - 1);
+    }
+    return tong;
+}
+
 // Display result
 function displayResult(result) {
     // Update summary values
@@ -277,6 +286,14 @@ function displayResult(result) {
     document.getElementById('monthly3').textContent = formatCurrency(result.paymentBreakdown.monthly3);
     document.getElementById('monthly6').textContent = formatCurrency(result.paymentBreakdown.monthly6);
     document.getElementById('monthly12').textContent = formatCurrency(result.paymentBreakdown.monthly12);
+
+    // Bổ sung hiển thị mức đóng một lần cho 2, 3, 4, 5 năm
+    const r = 0.00322; // Lãi suất 0.322%/tháng
+    const TNi = result.income;
+    document.getElementById('oneTime2').textContent = formatCurrency(tinhMucDongMotLan(TNi, r, 2));
+    document.getElementById('oneTime3').textContent = formatCurrency(tinhMucDongMotLan(TNi, r, 3));
+    document.getElementById('oneTime4').textContent = formatCurrency(tinhMucDongMotLan(TNi, r, 4));
+    document.getElementById('oneTime5').textContent = formatCurrency(tinhMucDongMotLan(TNi, r, 5));
     
     // Update additional info
     const infoList = document.getElementById('infoList');
