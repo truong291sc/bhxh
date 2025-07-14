@@ -262,10 +262,11 @@ function generateAdditionalInfo(data, stateSupportRate) {
 }
 
 // Hàm tính mức đóng một lần cho n năm về sau
-function tinhMucDongMotLan(TNi, r, n) {
+function tinhMucDongMotLan(TNi, r, n, stateSupport, localSupportAmount, securitySupportAmount) {
     let tong = 0;
+    const hoTro = stateSupport + localSupportAmount + securitySupportAmount;
     for (let i = 1; i <= n * 12; i++) {
-        tong += (TNi * 0.22) / Math.pow(1 + r, i - 1);
+        tong += ((TNi * 0.22) - hoTro) / Math.pow(1 + r, i - 1);
     }
     return tong;
 }
@@ -290,10 +291,13 @@ function displayResult(result) {
     // Bổ sung hiển thị mức đóng một lần cho 2, 3, 4, 5 năm
     const r = 0.00322; // Lãi suất 0.322%/tháng
     const TNi = result.income;
-    document.getElementById('oneTime2').textContent = formatCurrency(tinhMucDongMotLan(TNi, r, 2));
-    document.getElementById('oneTime3').textContent = formatCurrency(tinhMucDongMotLan(TNi, r, 3));
-    document.getElementById('oneTime4').textContent = formatCurrency(tinhMucDongMotLan(TNi, r, 4));
-    document.getElementById('oneTime5').textContent = formatCurrency(tinhMucDongMotLan(TNi, r, 5));
+    const stateSupport = result.stateSupport;
+    const localSupportAmount = result.localSupportAmount;
+    const securitySupportAmount = result.securitySupportAmount;
+    document.getElementById('oneTime2').textContent = formatCurrency(tinhMucDongMotLan(TNi, r, 2, stateSupport, localSupportAmount, securitySupportAmount));
+    document.getElementById('oneTime3').textContent = formatCurrency(tinhMucDongMotLan(TNi, r, 3, stateSupport, localSupportAmount, securitySupportAmount));
+    document.getElementById('oneTime4').textContent = formatCurrency(tinhMucDongMotLan(TNi, r, 4, stateSupport, localSupportAmount, securitySupportAmount));
+    document.getElementById('oneTime5').textContent = formatCurrency(tinhMucDongMotLan(TNi, r, 5, stateSupport, localSupportAmount, securitySupportAmount));
     
     // Update additional info
     const infoList = document.getElementById('infoList');
