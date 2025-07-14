@@ -294,10 +294,21 @@ function displayResult(result) {
     const stateSupport = result.stateSupport;
     const localSupportAmount = result.localSupportAmount;
     const securitySupportAmount = result.securitySupportAmount;
-    document.getElementById('oneTime2').textContent = formatCurrency(tinhMucDongMotLan(TNi, r, 2, stateSupport, localSupportAmount, securitySupportAmount));
-    document.getElementById('oneTime3').textContent = formatCurrency(tinhMucDongMotLan(TNi, r, 3, stateSupport, localSupportAmount, securitySupportAmount));
-    document.getElementById('oneTime4').textContent = formatCurrency(tinhMucDongMotLan(TNi, r, 4, stateSupport, localSupportAmount, securitySupportAmount));
-    document.getElementById('oneTime5').textContent = formatCurrency(tinhMucDongMotLan(TNi, r, 5, stateSupport, localSupportAmount, securitySupportAmount));
+    // Số tiền đóng từng tháng (không chiết khấu)
+    const actualPayment = result.actualPayment;
+    const soThang = [2*12, 3*12, 4*12, 5*12];
+    const oneTimeArr = [
+        tinhMucDongMotLan(TNi, r, 2, stateSupport, localSupportAmount, securitySupportAmount),
+        tinhMucDongMotLan(TNi, r, 3, stateSupport, localSupportAmount, securitySupportAmount),
+        tinhMucDongMotLan(TNi, r, 4, stateSupport, localSupportAmount, securitySupportAmount),
+        tinhMucDongMotLan(TNi, r, 5, stateSupport, localSupportAmount, securitySupportAmount)
+    ];
+    [2,3,4,5].forEach((n, idx) => {
+        document.getElementById('oneTime'+n).textContent = formatCurrency(oneTimeArr[idx]);
+        // Tính số tiền tiết kiệm
+        const saved = actualPayment * soThang[idx] - oneTimeArr[idx];
+        document.getElementById('oneTime'+n+'Saved').textContent = `Tiết kiệm: ${formatCurrency(saved)}`;
+    });
     
     // Update additional info
     const infoList = document.getElementById('infoList');
