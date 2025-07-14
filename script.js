@@ -262,11 +262,18 @@ function generateAdditionalInfo(data, stateSupportRate) {
 }
 
 // Hàm tính mức đóng một lần cho n năm về sau
-function tinhMucDongMotLan(TNi, r, n, stateSupport, localSupportAmount, securitySupportAmount) {
+function tinhMucDongMotLan(TNi, r, n, stateSupportRate, localSupportRate, securitySupportRate) {
     let tong = 0;
-    const hoTro = stateSupport + localSupportAmount + securitySupportAmount;
+    const MIN_INCOME = 1500000;
+    const CONTRIBUTION_RATE = 0.22;
+    // Tổng tỷ lệ hỗ trợ
+    const totalSupportRate = stateSupportRate + localSupportRate + securitySupportRate;
     for (let i = 1; i <= n * 12; i++) {
-        tong += ((TNi * 0.22) - hoTro) / Math.pow(1 + r, i - 1);
+        // Phần được hỗ trợ chỉ tính trên mức chuẩn hộ nghèo
+        const supportedPart = Math.min(TNi, MIN_INCOME);
+        const hoTro = supportedPart * CONTRIBUTION_RATE * totalSupportRate;
+        const dongThang = TNi * CONTRIBUTION_RATE - hoTro;
+        tong += dongThang / Math.pow(1 + r, i - 1);
     }
     return tong;
 }
@@ -291,17 +298,17 @@ function displayResult(result) {
     // Bổ sung hiển thị mức đóng một lần cho 2, 3, 4, 5 năm
     const r = 0.00322; // Lãi suất 0.322%/tháng
     const TNi = result.income;
-    const stateSupport = result.stateSupport;
-    const localSupportAmount = result.localSupportAmount;
-    const securitySupportAmount = result.securitySupportAmount;
-    // Số tiền đóng từng tháng (không chiết khấu)
+    // Lấy tỷ lệ hỗ trợ (dạng số thập phân)
+    const stateSupportRate = result.stateSupport / (1500000 * 0.22) || 0;
+    const localSupportRate = result.localSupportAmount / (1500000 * 0.22) || 0;
+    const securitySupportRate = result.securitySupportAmount / (1500000 * 0.22) || 0;
     const actualPayment = result.actualPayment;
     const soThang = [2*12, 3*12, 4*12, 5*12];
     const oneTimeArr = [
-        tinhMucDongMotLan(TNi, r, 2, stateSupport, localSupportAmount, securitySupportAmount),
-        tinhMucDongMotLan(TNi, r, 3, stateSupport, localSupportAmount, securitySupportAmount),
-        tinhMucDongMotLan(TNi, r, 4, stateSupport, localSupportAmount, securitySupportAmount),
-        tinhMucDongMotLan(TNi, r, 5, stateSupport, localSupportAmount, securitySupportAmount)
+        tinhMucDongMotLan(TNi, r, 2, stateSupportRate, localSupportRate, securitySupportRate),
+        tinhMucDongMotLan(TNi, r, 3, stateSupportRate, localSupportRate, securitySupportRate),
+        tinhMucDongMotLan(TNi, r, 4, stateSupportRate, localSupportRate, securitySupportRate),
+        tinhMucDongMotLan(TNi, r, 5, stateSupportRate, localSupportRate, securitySupportRate)
     ];
     [2,3,4,5].forEach((n, idx) => {
         document.getElementById('oneTime'+n).textContent = formatCurrency(oneTimeArr[idx]);
