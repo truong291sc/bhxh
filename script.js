@@ -331,8 +331,8 @@ function displayResult(result) {
         // Hiển thị chi tiết
         let detail = `<hr style='margin:8px 0;'>`;
         detail += `<div>Giảm trừ theo phương thức: ${formatCurrency(md1 - TNi * 0.22 * n * 12)}</div>`;
-        if (hoTroNSNN > 0) detail += `<div>Hỗ trợ NSNN: ${formatCurrency(hoTroNSNN)}</div>`;
-        if (hoTroNSDP > 0) detail += `<div>Hỗ trợ NSĐP: ${formatCurrency(hoTroNSDP)}</div>`;
+        if (hoTroNSNN > 0) detail += `<div>NSNN hỗ trợ: ${formatCurrency(hoTroNSNN)}</div>`;
+        if (hoTroNSDP > 0) detail += `<div>NSĐP hỗ trợ: ${formatCurrency(hoTroNSDP)}</div>`;
         if (hoTroANCS > 0) detail += `<div>Hỗ trợ ANCS: ${formatCurrency(hoTroANCS)}</div>`;
         document.getElementById('oneTime'+n+'Detail').innerHTML = detail;
     });
