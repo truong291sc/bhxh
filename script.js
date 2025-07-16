@@ -278,6 +278,21 @@ function tinhMucDongMotLan(TNi, r, n, stateSupportRate, localSupportRate, securi
     return tong;
 }
 
+function tinhMucDongMotLanGoc(TNi, r, n) {
+    let tong = 0;
+    for (let i = 1; i <= n * 12; i++) {
+        tong += (TNi * 0.22) / Math.pow(1 + r, i - 1);
+    }
+    return tong;
+}
+
+function tinhTongHoTro(n, stateSupportRate, localSupportRate, securitySupportRate) {
+    const MIN_INCOME = 1500000;
+    const CONTRIBUTION_RATE = 0.22;
+    const totalSupportRate = stateSupportRate + localSupportRate + securitySupportRate;
+    return n * 12 * (MIN_INCOME * CONTRIBUTION_RATE * totalSupportRate);
+}
+
 // Display result
 function displayResult(result) {
     // Update summary values
@@ -304,17 +319,15 @@ function displayResult(result) {
     const securitySupportRate = result.securitySupportAmount / (1500000 * 0.22) || 0;
     const actualPayment = result.actualPayment;
     const soThang = [2*12, 3*12, 4*12, 5*12];
-    const oneTimeArr = [
-        tinhMucDongMotLan(TNi, r, 2, stateSupportRate, localSupportRate, securitySupportRate),
-        tinhMucDongMotLan(TNi, r, 3, stateSupportRate, localSupportRate, securitySupportRate),
-        tinhMucDongMotLan(TNi, r, 4, stateSupportRate, localSupportRate, securitySupportRate),
-        tinhMucDongMotLan(TNi, r, 5, stateSupportRate, localSupportRate, securitySupportRate)
-    ];
     [2,3,4,5].forEach((n, idx) => {
-        document.getElementById('oneTime'+n).textContent = formatCurrency(oneTimeArr[idx]);
-        // Tính số tiền tiết kiệm
-        const saved = actualPayment * soThang[idx] - oneTimeArr[idx];
-        document.getElementById('oneTime'+n+'Saved').textContent = `Tiết kiệm: ${formatCurrency(saved)}`;
+        // Tính MD1 (chưa trừ hỗ trợ)
+        const md1 = tinhMucDongMotLanGoc(TNi, r, n);
+        // Tính tổng hỗ trợ
+        const tongHoTro = tinhTongHoTro(n, stateSupportRate, localSupportRate, securitySupportRate);
+        // Số tiền thực nộp
+        const thucNop = md1 - tongHoTro;
+        document.getElementById('oneTime'+n).textContent = formatCurrency(thucNop);
+        document.getElementById('oneTime'+n+'Saved').innerHTML = `Tổng phải đóng: <b>${formatCurrency(md1)}</b><br>Hỗ trợ: <b>${formatCurrency(tongHoTro)}</b>`;
     });
     
     // Update additional info
