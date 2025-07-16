@@ -317,17 +317,24 @@ function displayResult(result) {
     const stateSupportRate = result.stateSupport / (1500000 * 0.22) || 0;
     const localSupportRate = result.localSupportAmount / (1500000 * 0.22) || 0;
     const securitySupportRate = result.securitySupportAmount / (1500000 * 0.22) || 0;
-    const actualPayment = result.actualPayment;
-    const soThang = [2*12, 3*12, 4*12, 5*12];
-    [2,3,4,5].forEach((n, idx) => {
+    [2,3,4,5].forEach((n) => {
         // Tính MD1 (chưa trừ hỗ trợ)
         const md1 = tinhMucDongMotLanGoc(TNi, r, n);
         // Tính tổng hỗ trợ
-        const tongHoTro = tinhTongHoTro(n, stateSupportRate, localSupportRate, securitySupportRate);
+        const hoTroNSNN = n * 12 * (1500000 * 0.22 * stateSupportRate);
+        const hoTroNSDP = n * 12 * (1500000 * 0.22 * localSupportRate);
+        const hoTroANCS = n * 12 * (1500000 * 0.22 * securitySupportRate);
+        const tongHoTro = hoTroNSNN + hoTroNSDP + hoTroANCS;
         // Số tiền thực nộp
         const thucNop = md1 - tongHoTro;
         document.getElementById('oneTime'+n).textContent = formatCurrency(thucNop);
-        document.getElementById('oneTime'+n+'Saved').innerHTML = `Tổng phải đóng: <b>${formatCurrency(md1)}</b><br>Hỗ trợ: <b>${formatCurrency(tongHoTro)}</b>`;
+        // Hiển thị chi tiết
+        let detail = `<hr style='margin:8px 0;'>`;
+        detail += `<div>Giảm trừ theo phương thức: ${formatCurrency(md1 - TNi * 0.22 * n * 12)}</div>`;
+        if (hoTroNSNN > 0) detail += `<div>Hỗ trợ NSNN: ${formatCurrency(hoTroNSNN)}</div>`;
+        if (hoTroNSDP > 0) detail += `<div>Hỗ trợ NSĐP: ${formatCurrency(hoTroNSDP)}</div>`;
+        if (hoTroANCS > 0) detail += `<div>Hỗ trợ ANCS: ${formatCurrency(hoTroANCS)}</div>`;
+        document.getElementById('oneTime'+n+'Detail').innerHTML = detail;
     });
     
     // Update additional info
