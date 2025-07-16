@@ -345,6 +345,13 @@ body {
     font-size: 1rem;
 }
 
+.breakdown-detail {
+    font-size: 0.67em;
+    color: #555;
+    margin-top: 4px;
+    line-height: 1.5;
+}
+
 /* Info Section */
 .info-section {
     background: #e4f5fc;
