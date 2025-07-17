@@ -329,20 +329,21 @@ function displayResult(result) {
         const thucNop = md1 - tongHoTro;
         document.getElementById('oneTime'+n).textContent = formatCurrency(thucNop);
         // Hiển thị chi tiết
-        let detail = `<hr style='margin:8px 0;'>`;
-        detail += `<div>Giảm trừ theo phương thức: ${formatCurrency(md1 - TNi * 0.22 * n * 12)}</div>`;
+        let detail = '';
+        // detail += `<div>Giảm trừ theo phương thức: ${formatCurrency(md1 - TNi * 0.22 * n * 12)}</div>`;
         if (hoTroNSNN > 0) detail += `<div>NSNN hỗ trợ: ${formatCurrency(hoTroNSNN)}</div>`;
         if (hoTroNSDP > 0) detail += `<div>NSĐP hỗ trợ: ${formatCurrency(hoTroNSDP)}</div>`;
         if (hoTroANCS > 0) detail += `<div>Hỗ trợ ANCS: ${formatCurrency(hoTroANCS)}</div>`;
         document.getElementById('oneTime'+n+'Detail').innerHTML = detail;
     });
-    
-    // Update additional info
+    // Hiển thị thông tin bổ sung chỉ là tiết kiệm bao nhiêu tiền (giảm trừ theo phương thức)
     const infoList = document.getElementById('infoList');
     infoList.innerHTML = '';
-    result.additionalInfo.forEach(info => {
+    [2,3,4,5].forEach((n) => {
+        const md1 = tinhMucDongMotLanGoc(TNi, r, n);
+        const tietKiem = md1 - TNi * 0.22 * n * 12;
         const li = document.createElement('li');
-        li.textContent = info;
+        li.textContent = `Tiết kiệm khi đóng một lần cho ${n} năm: ${formatCurrency(tietKiem)}`;
         infoList.appendChild(li);
     });
 }
