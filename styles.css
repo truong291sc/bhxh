@@ -318,38 +318,40 @@ body {
     font-size: 1.2rem;
 }
 
-.breakdown-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 15px;
-}
-
+/* Đảm bảo đồng bộ style cho tất cả các thẻ phương án đóng */
 .breakdown-item {
     background: #f8f9fa;
     padding: 15px;
     border-radius: 10px;
     text-align: center;
     border: 1px solid #e9ecef;
+    margin: 0;
 }
-
 .breakdown-label {
     font-weight: 500;
     color: #666;
     margin-bottom: 8px;
     font-size: 0.9rem;
 }
-
 .breakdown-value {
     font-weight: 600;
     color: #0772b8;
     font-size: 1rem;
 }
-
 .breakdown-detail {
     font-size: 0.9rem;
     color: #555;
     margin-top: 4px;
     line-height: 1.5;
+}
+.breakdown-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+}
+/* Xóa các style riêng cho .one-time-payment-breakdown .breakdown-item */
+.one-time-payment-breakdown .breakdown-item {
+    /* Không có thuộc tính riêng, dùng chung .breakdown-item */
 }
 
 /* Info Section */
