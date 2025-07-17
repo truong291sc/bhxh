@@ -330,20 +330,16 @@ function displayResult(result) {
         document.getElementById('oneTime'+n).textContent = formatCurrency(thucNop);
         // Hiển thị chi tiết
         let detail = '';
-        // detail += `<div>Giảm trừ theo phương thức: ${formatCurrency(md1 - TNi * 0.22 * n * 12)}</div>`;
-        if (hoTroNSNN > 0) detail += `<div>NSNN hỗ trợ: ${formatCurrency(hoTroNSNN)}</div>`;
-        if (hoTroNSDP > 0) detail += `<div>NSĐP hỗ trợ: ${formatCurrency(hoTroNSDP)}</div>`;
-        if (hoTroANCS > 0) detail += `<div>Hỗ trợ ANCS: ${formatCurrency(hoTroANCS)}</div>`;
+        const tietKiem = md1 - TNi * 0.22 * n * 12;
+        detail += `<div>Tiết kiệm: ${formatCurrency(tietKiem)}</div>`;
         document.getElementById('oneTime'+n+'Detail').innerHTML = detail;
     });
-    // Hiển thị thông tin bổ sung chỉ là tiết kiệm bao nhiêu tiền (giảm trừ theo phương thức)
+    // Update additional info
     const infoList = document.getElementById('infoList');
     infoList.innerHTML = '';
-    [2,3,4,5].forEach((n) => {
-        const md1 = tinhMucDongMotLanGoc(TNi, r, n);
-        const tietKiem = md1 - TNi * 0.22 * n * 12;
+    result.additionalInfo.forEach(info => {
         const li = document.createElement('li');
-        li.textContent = `Tiết kiệm khi đóng một lần cho ${n} năm: ${formatCurrency(tietKiem)}`;
+        li.textContent = info;
         infoList.appendChild(li);
     });
 }
