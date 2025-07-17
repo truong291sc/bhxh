@@ -354,6 +354,10 @@ body {
     /* Không có thuộc tính riêng, dùng chung .breakdown-item */
 }
 
+.one-time-payment-breakdown {
+    margin-bottom: 30px;
+}
+
 /* Info Section */
 .info-section {
     background: #e4f5fc;
