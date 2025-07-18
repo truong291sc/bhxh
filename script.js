@@ -355,7 +355,7 @@ function displayResult(result) {
 // Show result card
 function showResultCard() {
     resultCard.classList.remove('hidden');
-    resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    resultCard.scrollIntoView({ behavior: 'auto', block: 'start' });
 }
 
 // Reset form
