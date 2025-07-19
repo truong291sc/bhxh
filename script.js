@@ -338,12 +338,14 @@ function displayResult(result) {
     const infoList = document.getElementById('infoList');
     infoList.innerHTML = '';
     const infoArr = [
-        'Được thay đổi phương thức đóng, thay đổi mức thu nhập làm căn cứ đóng sau khi đã hoàn thành phương thức cũ',
-        'Ngân sách Nhà nước hỗ trợ tối đa không quá 10 năm',
-        'Người tham gia thuộc nhiều đối tượng hỗ trợ sẽ được hỗ trợ theo mức cao nhất',
-        'Từ 01/07/2025:',
-        '- Không còn phương thức đóng bù.',
-        '- Người tham gia có thể nghỉ hưu khi đủ tuổi theo quy định và đã tham gia BHXH từ đủ 15 năm trở lên'
+        'Thời hạn đóng bảo hiểm xã hội tự nguyện được quy định như sau:',
+        '- Trong tháng đối với phương thức đóng hằng tháng;',
+        '- Trong 03 tháng đối với phương thức đóng 03 tháng một lần;',
+        '- Trong 04 tháng đầu đối với phương thức đóng 06 tháng một lần;',
+        '- Trong 07 tháng đầu đối với phương thức đóng 12 tháng một lần;',
+        '- Tại thời điểm đăng ký phương thức đóng và mức thu nhập tháng làm căn cứ đóng đối với trường hợp đóng cho những năm về sau và đóng cho những năm còn thiếu để hưởng lương hưu.',
+        'Người tham gia được thay đổi phương thức đóng, thay đổi mức thu nhập làm căn cứ đóng sau khi đã hoàn thành phương thức cũ.',
+        'Người tham gia được Ngân sách Nhà nước hỗ trợ một phần tiền đóng tối đa không quá 10 năm, người tham gia thuộc nhiều đối tượng hỗ trợ sẽ được hỗ trợ theo mức cao nhất.'
     ];
     infoArr.forEach(info => {
         const li = document.createElement('li');
