@@ -396,6 +396,15 @@ body {
     margin-right: 10px;
 }
 
+.info-sub {
+    margin-left: 18px;
+    color: #888;
+    font-size: 0.95em;
+    list-style: none;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
 /* Footer */
 .footer {
     margin-top: 40px;

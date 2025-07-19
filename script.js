@@ -348,9 +348,16 @@ function displayResult(result) {
         'Người tham gia được Ngân sách Nhà nước hỗ trợ một phần tiền đóng tối đa không quá 10 năm, người tham gia thuộc nhiều đối tượng hỗ trợ sẽ được hỗ trợ theo mức cao nhất.'
     ];
     infoArr.forEach(info => {
-        const li = document.createElement('li');
-        li.textContent = info;
-        infoList.appendChild(li);
+        if (info.startsWith('- ')) {
+            const div = document.createElement('div');
+            div.className = 'info-sub';
+            div.textContent = info;
+            infoList.appendChild(div);
+        } else {
+            const li = document.createElement('li');
+            li.textContent = info;
+            infoList.appendChild(li);
+        }
     });
 }
 
