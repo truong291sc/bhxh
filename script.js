@@ -53,6 +53,18 @@ ONE_TIME_YEARS.forEach((year) => {
     resultElements[`oneTime${year}Detail`] = document.getElementById(`oneTime${year}Detail`);
 });
 
+let lastResult = null;
+
+const PDF_MARGIN = 42.5;
+const PDF_LINE = 15;
+const PDF_SECTION_GAP = 8;
+const PDF_FONT_URLS = {
+    regular: 'https://cdn.jsdelivr.net/gh/googlefonts/noto-fonts@main/hinted/ttf/NotoSans/NotoSans-Regular.ttf',
+    bold: 'https://cdn.jsdelivr.net/gh/googlefonts/noto-fonts@main/hinted/ttf/NotoSans/NotoSans-Bold.ttf'
+};
+
+let pdfFontCache = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', handleFormSubmit);
     incomeInput.addEventListener('input', formatCurrencyInput);
@@ -142,6 +154,7 @@ function handleFormSubmit(e) {
     if (!validateForm()) return;
 
     const result = calculateBHXH(getFormData());
+    lastResult = result;
     displayResult(result);
     showResultCard();
 }
@@ -278,6 +291,7 @@ function showResultCard() {
 function resetForm() {
     form.reset();
     resultCard.classList.add('hidden');
+    lastResult = null;
 
     document.querySelectorAll('.form-group').forEach(removeError);
     incomeInput.style.borderColor = '#e1e5e9';
@@ -294,18 +308,206 @@ function formatCurrency(amount) {
     }).format(amount);
 }
 
-function handlePrintPdf() {
-    const resultContent = resultCard.querySelector('.result-content');
-    html2canvas(resultContent).then((canvas) => {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new window.jspdf.jsPDF({ orientation: 'p', unit: 'pt', format: 'a4' });
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const imgWidth = pageWidth - 40;
-        const imgHeight = canvas.height * imgWidth / canvas.width;
-        pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
+function arrayBufferToBase64(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    const chunkSize = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+    }
+    return btoa(binary);
+}
 
+async function loadPdfFonts() {
+    if (pdfFontCache) return pdfFontCache;
+
+    const [regular, bold] = await Promise.all([
+        fetch(PDF_FONT_URLS.regular).then((r) => r.arrayBuffer()),
+        fetch(PDF_FONT_URLS.bold).then((r) => r.arrayBuffer())
+    ]);
+
+    pdfFontCache = {
+        regular: arrayBufferToBase64(regular),
+        bold: arrayBufferToBase64(bold)
+    };
+    return pdfFontCache;
+}
+
+function registerPdfFonts(pdf, fonts) {
+    pdf.addFileToVFS('NotoSans-Regular.ttf', fonts.regular);
+    pdf.addFileToVFS('NotoSans-Bold.ttf', fonts.bold);
+    pdf.addFont('NotoSans-Regular.ttf', 'NotoSans', 'normal');
+    pdf.addFont('NotoSans-Bold.ttf', 'NotoSans', 'bold');
+}
+
+function getPdfPageWidth(pdf) {
+    return pdf.internal.pageSize.getWidth();
+}
+
+function getPdfPageHeight(pdf) {
+    return pdf.internal.pageSize.getHeight();
+}
+
+function ensurePdfSpace(pdf, y, needed) {
+    if (y + needed > getPdfPageHeight(pdf) - PDF_MARGIN) {
+        pdf.addPage();
+        return PDF_MARGIN;
+    }
+    return y;
+}
+
+function pdfSetBlack(pdf) {
+    pdf.setTextColor(0, 0, 0);
+    pdf.setDrawColor(0, 0, 0);
+}
+
+function pdfWrappedText(pdf, y, text, left, right, fontSize, fontStyle = 'normal') {
+    const maxWidth = right - left;
+    const lineHeight = fontSize * 1.45;
+    pdf.setFont('NotoSans', fontStyle);
+    pdf.setFontSize(fontSize);
+    pdfSetBlack(pdf);
+
+    const lines = pdf.splitTextToSize(text, maxWidth);
+    lines.forEach((line) => {
+        y = ensurePdfSpace(pdf, y, lineHeight);
+        pdf.text(line, left, y);
+        y += lineHeight;
+    });
+    return y;
+}
+
+function pdfSectionTitle(pdf, y, title) {
+    const pageWidth = getPdfPageWidth(pdf);
+    y = ensurePdfSpace(pdf, y, 24);
+    pdf.setFont('NotoSans', 'bold');
+    pdf.setFontSize(12);
+    pdfSetBlack(pdf);
+    pdf.text(title, PDF_MARGIN, y);
+    y += 6;
+    pdf.setLineWidth(0.5);
+    pdf.line(PDF_MARGIN, y, pageWidth - PDF_MARGIN, y);
+    return y + PDF_SECTION_GAP;
+}
+
+function pdfDataRow(pdf, y, label, value, options = {}) {
+    const pageWidth = getPdfPageWidth(pdf);
+    const contentWidth = pageWidth - PDF_MARGIN * 2;
+    const valueWidth = 120;
+    const lineHeight = (options.fontSize || 11) * 1.35;
+
+    pdf.setFont('NotoSans', options.bold ? 'bold' : 'normal');
+    pdf.setFontSize(options.fontSize || 11);
+    pdfSetBlack(pdf);
+
+    const labelLines = pdf.splitTextToSize(label, contentWidth - valueWidth - 10);
+    const rowHeight = Math.max(labelLines.length, 1) * lineHeight;
+    y = ensurePdfSpace(pdf, y, rowHeight);
+
+    labelLines.forEach((line, index) => {
+        pdf.text(line, PDF_MARGIN, y + index * lineHeight);
+    });
+    pdf.text(value, pageWidth - PDF_MARGIN, y, { align: 'right' });
+
+    return y + rowHeight + 2;
+}
+
+function buildResultPdf(result) {
+    const pdf = new window.jspdf.jsPDF({ orientation: 'p', unit: 'pt', format: 'a4' });
+    registerPdfFonts(pdf, pdfFontCache);
+
+    const pageWidth = getPdfPageWidth(pdf);
+    let y = PDF_MARGIN;
+
+    pdf.setFont('NotoSans', 'bold');
+    pdf.setFontSize(14);
+    pdfSetBlack(pdf);
+    pdf.text('BẢNG TÍNH MỨC ĐÓNG BHXH TỰ NGUYỆN', pageWidth / 2, y, { align: 'center' });
+    y += 22;
+
+    pdf.setFont('NotoSans', 'normal');
+    pdf.setFontSize(10);
+    pdf.text(`Ngày in: ${new Date().toLocaleDateString('vi-VN')}`, pageWidth - PDF_MARGIN, y, { align: 'right' });
+    y += 18;
+
+    y = pdfSectionTitle(pdf, y, 'Kết quả tính toán');
+    const summaryRows = [
+        ['Mức thu nhập lựa chọn:', formatCurrency(result.income)],
+        ['Mức đóng cá nhân (22%):', formatCurrency(result.personalContribution)],
+        ['Hỗ trợ từ NSNN:', formatCurrency(result.stateSupport)],
+        ['Hỗ trợ từ NSĐP:', formatCurrency(result.localSupportAmount)],
+        ['Hỗ trợ người thuộc lực lượng ANCS:', formatCurrency(result.securitySupportAmount)],
+        ['Tổng hỗ trợ:', formatCurrency(result.totalSupport)],
+        ['Số tiền thực đóng:', formatCurrency(result.actualPayment)]
+    ];
+    summaryRows.forEach(([label, value], index) => {
+        const isLast = index === summaryRows.length - 1;
+        y = pdfDataRow(pdf, y, label, value, { bold: isLast, fontSize: isLast ? 12 : 11 });
+    });
+
+    y += 6;
+    y = pdfSectionTitle(pdf, y, 'Chi tiết theo phương thức đóng');
+    const paymentRows = [
+        ['1 tháng:', formatCurrency(result.paymentBreakdown.monthly1)],
+        ['3 tháng:', formatCurrency(result.paymentBreakdown.monthly3)],
+        ['6 tháng:', formatCurrency(result.paymentBreakdown.monthly6)],
+        ['12 tháng:', formatCurrency(result.paymentBreakdown.monthly12)]
+    ];
+    paymentRows.forEach(([label, value]) => {
+        y = pdfDataRow(pdf, y, label, value);
+    });
+
+    y += 6;
+    y = pdfSectionTitle(pdf, y, 'Mức đóng một lần cho nhiều năm về sau');
+    result.oneTimePayments.forEach(({ years, actualPayment, savings }) => {
+        y = pdfDataRow(pdf, y, `${years} năm:`, formatCurrency(actualPayment));
+        y = pdfWrappedText(
+            pdf, y,
+            `Tiết kiệm: ${formatCurrency(savings)}`,
+            PDF_MARGIN + 12,
+            pageWidth - PDF_MARGIN,
+            10
+        );
+        y += 4;
+    });
+
+    y += 6;
+    y = pdfSectionTitle(pdf, y, 'Thông tin bổ sung');
+    SUPPLEMENTARY_INFO.forEach((info) => {
+        const indent = info.startsWith('- ') ? PDF_MARGIN + 12 : PDF_MARGIN;
+        y = pdfWrappedText(pdf, y, info, indent, pageWidth - PDF_MARGIN, 10);
+        y += 3;
+    });
+
+    return pdf;
+}
+
+async function handlePrintPdf() {
+    if (!lastResult) {
+        alert('Vui lòng tính toán trước khi in PDF.');
+        return;
+    }
+
+    const printBtn = document.getElementById('printPdfBtn');
+    const originalLabel = printBtn?.innerHTML;
+    if (printBtn) {
+        printBtn.disabled = true;
+        printBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tạo PDF...';
+    }
+
+    try {
+        await loadPdfFonts();
+        const pdf = buildResultPdf(lastResult);
         const url = URL.createObjectURL(pdf.output('blob'));
         window.open(url, '_blank');
         setTimeout(() => URL.revokeObjectURL(url), 60000);
-    });
+    } catch (error) {
+        console.error(error);
+        alert('Không thể tạo PDF. Vui lòng kiểm tra kết nối mạng và thử lại.');
+    } finally {
+        if (printBtn) {
+            printBtn.disabled = false;
+            printBtn.innerHTML = originalLabel;
+        }
+    }
 }
