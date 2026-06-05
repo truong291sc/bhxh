@@ -56,8 +56,15 @@ ONE_TIME_YEARS.forEach((year) => {
 let lastResult = null;
 
 const PDF_MARGIN = 42.5;
-const PDF_LINE = 15;
-const PDF_SECTION_GAP = 8;
+const PDF_SECTION_GAP = 14;
+const PDF_GRID_GAP = 12;
+const PDF_COLORS = {
+    boxBg: [248, 249, 250],
+    boxBorder: [233, 236, 239],
+    infoBg: [228, 245, 252],
+    accent: [7, 114, 184],
+    divider: [238, 238, 238]
+};
 const PDF_FONT_URLS = {
     regular: 'https://cdn.jsdelivr.net/gh/googlefonts/noto-fonts@main/hinted/ttf/NotoSans/NotoSans-Regular.ttf',
     bold: 'https://cdn.jsdelivr.net/gh/googlefonts/noto-fonts@main/hinted/ttf/NotoSans/NotoSans-Bold.ttf'
@@ -361,55 +368,188 @@ function pdfSetBlack(pdf) {
     pdf.setDrawColor(0, 0, 0);
 }
 
-function pdfWrappedText(pdf, y, text, left, right, fontSize, fontStyle = 'normal') {
-    const maxWidth = right - left;
-    const lineHeight = fontSize * 1.45;
-    pdf.setFont('NotoSans', fontStyle);
-    pdf.setFontSize(fontSize);
-    pdfSetBlack(pdf);
-
-    const lines = pdf.splitTextToSize(text, maxWidth);
-    lines.forEach((line) => {
-        y = ensurePdfSpace(pdf, y, lineHeight);
-        pdf.text(line, left, y);
-        y += lineHeight;
-    });
-    return y;
-}
-
-function pdfSectionTitle(pdf, y, title) {
-    const pageWidth = getPdfPageWidth(pdf);
-    y = ensurePdfSpace(pdf, y, 24);
+function pdfSectionHeading(pdf, y, title) {
+    y = ensurePdfSpace(pdf, y, 22);
     pdf.setFont('NotoSans', 'bold');
     pdf.setFontSize(12);
     pdfSetBlack(pdf);
     pdf.text(title, PDF_MARGIN, y);
-    y += 6;
-    pdf.setLineWidth(0.5);
-    pdf.line(PDF_MARGIN, y, pageWidth - PDF_MARGIN, y);
-    return y + PDF_SECTION_GAP;
+    return y + 20;
 }
 
-function pdfDataRow(pdf, y, label, value, options = {}) {
+function pdfSummaryRow(pdf, y, label, value, options = {}) {
     const pageWidth = getPdfPageWidth(pdf);
-    const contentWidth = pageWidth - PDF_MARGIN * 2;
-    const valueWidth = 120;
-    const lineHeight = (options.fontSize || 11) * 1.35;
+    const rowHeight = options.highlight ? 18 : 16;
+    y = ensurePdfSpace(pdf, y, rowHeight + 10);
 
-    pdf.setFont('NotoSans', options.bold ? 'bold' : 'normal');
-    pdf.setFontSize(options.fontSize || 11);
+    pdf.setFont('NotoSans', 'normal');
+    pdf.setFontSize(11);
     pdfSetBlack(pdf);
+    pdf.text(label, PDF_MARGIN, y);
 
-    const labelLines = pdf.splitTextToSize(label, contentWidth - valueWidth - 10);
-    const rowHeight = Math.max(labelLines.length, 1) * lineHeight;
-    y = ensurePdfSpace(pdf, y, rowHeight);
-
-    labelLines.forEach((line, index) => {
-        pdf.text(line, PDF_MARGIN, y + index * lineHeight);
-    });
+    pdf.setFont('NotoSans', 'bold');
+    pdf.setFontSize(options.highlight ? 13 : 11);
     pdf.text(value, pageWidth - PDF_MARGIN, y, { align: 'right' });
 
-    return y + rowHeight + 2;
+    y += 10;
+    if (!options.last) {
+        pdf.setDrawColor(...PDF_COLORS.divider);
+        pdf.setLineWidth(0.5);
+        pdf.line(PDF_MARGIN, y, pageWidth - PDF_MARGIN, y);
+        y += 8;
+    }
+    return y;
+}
+
+function pdfMeasureCardHeight(pdf, width, value, detail) {
+    pdf.setFont('NotoSans', 'bold');
+    pdf.setFontSize(10);
+    const valueLines = pdf.splitTextToSize(value, width - 12).length;
+    let height = 34 + valueLines * 12;
+    if (detail) {
+        pdf.setFont('NotoSans', 'normal');
+        pdf.setFontSize(9);
+        height += pdf.splitTextToSize(detail, width - 12).length * 11 + 6;
+    }
+    return Math.max(height, 52);
+}
+
+function pdfBreakdownCard(pdf, x, y, width, height, label, value, detail) {
+    pdf.setFillColor(...PDF_COLORS.boxBg);
+    pdf.setDrawColor(...PDF_COLORS.boxBorder);
+    pdf.setLineWidth(0.5);
+    pdf.roundedRect(x, y, width, height, 4, 4, 'FD');
+
+    const centerX = x + width / 2;
+    let textY = y + 16;
+
+    pdf.setFont('NotoSans', 'normal');
+    pdf.setFontSize(9);
+    pdfSetBlack(pdf);
+    pdf.text(label, centerX, textY, { align: 'center' });
+
+    textY += 14;
+    pdf.setFont('NotoSans', 'bold');
+    pdf.setFontSize(10);
+    const valueLines = pdf.splitTextToSize(value, width - 12);
+    valueLines.forEach((line, index) => {
+        pdf.text(line, centerX, textY + index * 12, { align: 'center' });
+    });
+    textY += valueLines.length * 12 + 4;
+
+    if (detail) {
+        pdf.setFont('NotoSans', 'normal');
+        pdf.setFontSize(9);
+        const detailLines = pdf.splitTextToSize(detail, width - 12);
+        detailLines.forEach((line, index) => {
+            pdf.text(line, centerX, textY + index * 11, { align: 'center' });
+        });
+    }
+}
+
+function pdfBreakdownGrid(pdf, y, items) {
+    const pageWidth = getPdfPageWidth(pdf);
+    const contentWidth = pageWidth - PDF_MARGIN * 2;
+    const cols = items.length;
+    const cellWidth = (contentWidth - PDF_GRID_GAP * (cols - 1)) / cols;
+    const cellHeight = Math.max(
+        ...items.map((item) => pdfMeasureCardHeight(pdf, cellWidth, item.value, item.detail))
+    );
+
+    y = ensurePdfSpace(pdf, y, cellHeight);
+    items.forEach((item, index) => {
+        const x = PDF_MARGIN + index * (cellWidth + PDF_GRID_GAP);
+        pdfBreakdownCard(pdf, x, y, cellWidth, cellHeight, item.label, item.value, item.detail);
+    });
+
+    return y + cellHeight;
+}
+
+function pdfLayoutInfoSection(pdf, startY, boxLeft, boxWidth) {
+    const textLeft = boxLeft + 14;
+    const textWidth = boxWidth - 24;
+    const lineHeight = 14.5;
+    const items = [
+        { type: 'title', text: 'Thông tin bổ sung', left: textLeft, fontSize: 12, fontStyle: 'bold' }
+    ];
+
+    SUPPLEMENTARY_INFO.forEach((info, index) => {
+        const isSub = info.startsWith('- ');
+        const left = isSub ? textLeft + 14 : textLeft;
+        const width = isSub ? textWidth - 14 : textWidth;
+        const content = isSub ? info : `• ${info}`;
+
+        pdf.setFont('NotoSans', 'normal');
+        pdf.setFontSize(10);
+        pdf.splitTextToSize(content, width).forEach((line) => {
+            items.push({ type: 'text', text: line, left, fontSize: 10, fontStyle: 'normal' });
+        });
+        if (index < SUPPLEMENTARY_INFO.length - 1) {
+            items.push({ type: 'gap', height: 3 });
+        }
+    });
+
+    let y = ensurePdfSpace(pdf, startY, 40);
+    const sectionStartY = y;
+    const sectionStartPage = pdf.internal.getCurrentPageInfo().pageNumber;
+    const placed = [];
+
+    y += 16;
+    items.forEach((item) => {
+        if (item.type === 'gap') {
+            y += item.height;
+            return;
+        }
+
+        const height = item.type === 'title' ? lineHeight + 6 : lineHeight;
+        y = ensurePdfSpace(pdf, y, height);
+        placed.push({ ...item, y, page: pdf.internal.getCurrentPageInfo().pageNumber });
+        y += height;
+    });
+
+    return {
+        sectionStartY,
+        sectionStartPage,
+        sectionEndY: y + 10,
+        sectionEndPage: pdf.internal.getCurrentPageInfo().pageNumber,
+        placed,
+        boxLeft,
+        boxWidth
+    };
+}
+
+function pdfDrawInfoBackground(pdf, layout) {
+    const pageHeight = getPdfPageHeight(pdf);
+
+    for (let page = layout.sectionStartPage; page <= layout.sectionEndPage; page++) {
+        pdf.setPage(page);
+        const top = page === layout.sectionStartPage ? layout.sectionStartY : PDF_MARGIN;
+        const bottom = page === layout.sectionEndPage
+            ? layout.sectionEndY
+            : pageHeight - PDF_MARGIN;
+
+        pdf.setFillColor(...PDF_COLORS.infoBg);
+        pdf.roundedRect(layout.boxLeft, top, layout.boxWidth, bottom - top, 4, 4, 'F');
+        pdf.setFillColor(...PDF_COLORS.accent);
+        pdf.rect(layout.boxLeft, top, 3, bottom - top, 'F');
+    }
+}
+
+function pdfInfoSection(pdf, y) {
+    const boxWidth = getPdfPageWidth(pdf) - PDF_MARGIN * 2;
+    const layout = pdfLayoutInfoSection(pdf, y, PDF_MARGIN, boxWidth);
+
+    pdfDrawInfoBackground(pdf, layout);
+    layout.placed.forEach((item) => {
+        pdf.setPage(item.page);
+        pdf.setFont('NotoSans', item.fontStyle);
+        pdf.setFontSize(item.fontSize);
+        pdfSetBlack(pdf);
+        pdf.text(item.text, item.left, item.y);
+    });
+
+    pdf.setPage(layout.sectionEndPage);
+    return layout.sectionEndY + PDF_SECTION_GAP;
 }
 
 function buildResultPdf(result) {
@@ -428,9 +568,8 @@ function buildResultPdf(result) {
     pdf.setFont('NotoSans', 'normal');
     pdf.setFontSize(10);
     pdf.text(`Ngày in: ${new Date().toLocaleDateString('vi-VN')}`, pageWidth - PDF_MARGIN, y, { align: 'right' });
-    y += 18;
+    y += 22;
 
-    y = pdfSectionTitle(pdf, y, 'Kết quả tính toán');
     const summaryRows = [
         ['Mức thu nhập lựa chọn:', formatCurrency(result.income)],
         ['Mức đóng cá nhân (22%):', formatCurrency(result.personalContribution)],
@@ -441,43 +580,31 @@ function buildResultPdf(result) {
         ['Số tiền thực đóng:', formatCurrency(result.actualPayment)]
     ];
     summaryRows.forEach(([label, value], index) => {
-        const isLast = index === summaryRows.length - 1;
-        y = pdfDataRow(pdf, y, label, value, { bold: isLast, fontSize: isLast ? 12 : 11 });
+        y = pdfSummaryRow(pdf, y, label, value, {
+            highlight: index === summaryRows.length - 1,
+            last: index === summaryRows.length - 1
+        });
     });
 
-    y += 6;
-    y = pdfSectionTitle(pdf, y, 'Chi tiết theo phương thức đóng');
-    const paymentRows = [
-        ['1 tháng:', formatCurrency(result.paymentBreakdown.monthly1)],
-        ['3 tháng:', formatCurrency(result.paymentBreakdown.monthly3)],
-        ['6 tháng:', formatCurrency(result.paymentBreakdown.monthly6)],
-        ['12 tháng:', formatCurrency(result.paymentBreakdown.monthly12)]
-    ];
-    paymentRows.forEach(([label, value]) => {
-        y = pdfDataRow(pdf, y, label, value);
-    });
+    y += PDF_SECTION_GAP;
+    y = pdfSectionHeading(pdf, y, 'Chi tiết theo phương thức đóng:');
+    y = pdfBreakdownGrid(pdf, y, [
+        { label: '1 tháng', value: formatCurrency(result.paymentBreakdown.monthly1) },
+        { label: '3 tháng', value: formatCurrency(result.paymentBreakdown.monthly3) },
+        { label: '6 tháng', value: formatCurrency(result.paymentBreakdown.monthly6) },
+        { label: '12 tháng', value: formatCurrency(result.paymentBreakdown.monthly12) }
+    ]);
 
-    y += 6;
-    y = pdfSectionTitle(pdf, y, 'Mức đóng một lần cho nhiều năm về sau');
-    result.oneTimePayments.forEach(({ years, actualPayment, savings }) => {
-        y = pdfDataRow(pdf, y, `${years} năm:`, formatCurrency(actualPayment));
-        y = pdfWrappedText(
-            pdf, y,
-            `Tiết kiệm: ${formatCurrency(savings)}`,
-            PDF_MARGIN + 12,
-            pageWidth - PDF_MARGIN,
-            10
-        );
-        y += 4;
-    });
+    y += PDF_SECTION_GAP;
+    y = pdfSectionHeading(pdf, y, 'Mức đóng một lần cho nhiều năm về sau:');
+    y = pdfBreakdownGrid(pdf, y, result.oneTimePayments.map(({ years, actualPayment, savings }) => ({
+        label: `${years} năm`,
+        value: formatCurrency(actualPayment),
+        detail: `Tiết kiệm: ${formatCurrency(savings)}`
+    })));
 
-    y += 6;
-    y = pdfSectionTitle(pdf, y, 'Thông tin bổ sung');
-    SUPPLEMENTARY_INFO.forEach((info) => {
-        const indent = info.startsWith('- ') ? PDF_MARGIN + 12 : PDF_MARGIN;
-        y = pdfWrappedText(pdf, y, info, indent, pageWidth - PDF_MARGIN, 10);
-        y += 3;
-    });
+    y += PDF_SECTION_GAP;
+    y = pdfInfoSection(pdf, y);
 
     return pdf;
 }
